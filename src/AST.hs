@@ -27,6 +27,15 @@ data AST = Lambda String AST
 prettyPrintFunc :: Function -> String
 prettyPrintFunc (Function _ var body) = prettyPrintAST (Lambda var body)
 
-prettyPrintAST (Lambda var body) = "λ" ++ var ++ ". " ++ prettyPrintAST body
-prettyPrintAST (Apply e1 e2) = "(" ++ prettyPrintAST e1 ++ ") (" ++ prettyPrintAST e2 ++ ")"
+prettyPrintClos :: Function -> String
+prettyPrintClos (Function env _ _) = if M.null env
+                                       then ""
+                                       else "Closure Vars: " ++ ppClos (M.keys env) ++ "\n"
+  where
+    ppClos [] = ""
+    ppClos [var] = var
+    ppClos (var:vars) = var ++ " " ++ ppClos vars
+
+prettyPrintAST (Lambda var body) = "(λ" ++ var ++ ". " ++ prettyPrintAST body ++ ")"
+prettyPrintAST (Apply e1 e2) = "(" ++ prettyPrintAST e1 ++ " " ++ prettyPrintAST e2 ++ ")"
 prettyPrintAST (Var var) = var

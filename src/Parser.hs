@@ -37,16 +37,23 @@ parser :: Parser AST
 parser = expr <* eof
 
 
-expr = do e <- nonapply
-          es <- many nonapply
-          return (foldl Apply e es)
+expr = parened <|> (fmap Var var)
 
-nonapply = lambda <|> grouped <|> (fmap Var var)
+-- NOTE: This is necessary to avoid backtracking.
+parened = do match LLParen
+             lambda <|> apply
 
 lambda = do match LLambda
-            arg <- var
+            args <- many1 var
             match LDot
-            body <- nonapply
-            return (Lambda arg body)
+            body <- expr
+            match LRParen
+            return (lambda' args body)
+  where
+    lambda' [] body = body
+    lambda' (var:vars) body = Lambda var (lambda' vars body)
 
-grouped = match LLParen *> expr <* match LRParen
+apply = do e1 <- expr
+           e2 <- expr
+           match LRParen
+           return (Apply e1 e2)

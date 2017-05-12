@@ -17,7 +17,8 @@ main = do putStr "λ> "
           case runParser parser () "REPL" (scan str) of
             Left err -> print err
             Right ast -> case eval ast of
-                           Right f -> putStrLn (prettyPrintFunc f)
+                           Right f -> do putStr (prettyPrintClos f)
+                                         putStrLn (prettyPrintFunc f)
                            Left (VarNotInScope var) ->
                              putStrLn ("Error: " ++ var ++ " not in scope.")
           main

@@ -7,21 +7,21 @@ lexically scoped variables as well lazy evaluation.
 ## TODO
 
 - Fix EBNF grammer.
+- Add readline functionality.
 - Write better tests.
 
 ## Syntax
 
-Note that when looking at the EBNF below `λx. x x` will parse to `(λx. x) x`
-instead of `λx. (x x)`. This shold be fixed.
+This EBNF should be changed to allow expressions like `\x y z. x y z`, where
+application is left associative and binds more tightly than abstraction. This
+expression should thus be equivilent to what is now `(\x y z. ((x y) z))`.
 
 ### EBNF
 
 ```
-expr = nonapply , { nonapply } ;  (* Application is left associative (ie. x y z = (x y) z). *)
-
-nonapply = lambda , var , '.' , nonapply
-         | '(' , expr , ')'
-         | var ;
+expr = '(' , lambda , var , { var } , '.' , expr , ')'
+     | '(' , expr , expr ')'
+     | var ;
 
 var = char , { char } ;
 
