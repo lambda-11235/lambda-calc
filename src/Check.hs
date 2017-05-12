@@ -5,31 +5,26 @@ module Check ( Error (..)
 
 import AST
 
-import Control.Monad.State
 import qualified Data.Set as S
 
 
 data Error = UninstatiatedVar String deriving (Eq, Show)
 
-type CheckState = StateT (S.Set String) (Either Error)
-
 
 -- | Statically checks for semantic errors.
 check :: AST -> Either Error ()
-check ast = evalStateT check' S.empty
+check ast = check'
   where
-    check' = do checkVars ast
+    check' = do checkVars ast S.empty
 
 
 -- | Statically checks that all variables are instantiated by a lambda
 -- definiton.
-checkVars :: AST -> CheckState ()
-checkVars (Lambda var body) = do modify (S.insert var)
-                                 checkVars body
-checkVars (Apply e1 e2) = do checkVars e1
-                             checkVars e2
-checkVars (Var var) = do vars <- get
-                         if S.member var vars
-                            then return ()
-                            else lift (Left (UninstatiatedVar var))
+checkVars :: AST -> S.Set String -> Either Error ()
+checkVars (Lambda var body) vars = checkVars body (S.insert var vars)
+checkVars (Apply e1 e2) vars = do checkVars e1 vars
+                                  checkVars e2 vars
+checkVars (Var var) vars = if S.member var vars
+                             then Right ()
+                             else Left (UninstatiatedVar var)
 
