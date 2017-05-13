@@ -4,9 +4,14 @@ module AST where
 import qualified Data.Map as M
 
 
+-- | The current execution environment. This is a map between bond variables and
+-- the unevaluated chunks they correspond to.
 type Env = M.Map String Chunk
 
 
+-- | A chunk is an unevaluated piece of code. We must store enough information
+-- to fully evaluate the chunk, which includes the environment it was found in
+-- as well as the AST of the code.
 data Chunk = Chunk { getEnv :: Env
                    , getExpr :: Expr }
                    deriving (Eq, Show)
@@ -27,20 +32,3 @@ data Expr = Lambda String Expr
 data TopLevel = Bind String Expr
               | Expr Expr
               deriving (Eq, Show)
-
-
-prettyPrintFunc :: Function -> String
-prettyPrintFunc (Function _ var body) = prettyPrintExpr (Lambda var body)
-
-prettyPrintClos :: Function -> String
-prettyPrintClos (Function env _ _) = if M.null env
-                                       then ""
-                                       else "Closure Vars: " ++ ppClos (M.keys env) ++ "\n"
-  where
-    ppClos [] = ""
-    ppClos [var] = var
-    ppClos (var:vars) = var ++ " " ++ ppClos vars
-
-prettyPrintExpr (Lambda var body) = "(λ" ++ var ++ ". " ++ prettyPrintExpr body ++ ")"
-prettyPrintExpr (Apply e1 e2) = "(" ++ prettyPrintExpr e1 ++ " " ++ prettyPrintExpr e2 ++ ")"
-prettyPrintExpr (Var var) = var

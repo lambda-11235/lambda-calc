@@ -6,16 +6,17 @@ module Check ( Error (..)
 import AST
 
 import qualified Data.Set as S
+import qualified Data.Map as M
 
 
 data Error = UninstatiatedVar String deriving (Eq, Show)
 
 
 -- | Statically checks for semantic errors.
-check :: Expr -> Either Error ()
-check expr = check'
+check :: Expr -> Env -> Either Error ()
+check expr env = check'
   where
-    check' = do checkVars expr S.empty
+    check' = do checkVars expr (S.fromList (M.keys env))
 
 
 -- | Statically checks that all variables are instantiated by a lambda

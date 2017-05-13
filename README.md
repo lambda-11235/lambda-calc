@@ -2,19 +2,12 @@
 # Lambda Calculus
 
 A simple implementation of the untyped lambda calculus. This implementation uses
-lexically scoped variables as well lazy evaluation.
-
-## TODO
-
-- Fix EBNF grammar.
-- Add readline functionality.
-- Write better tests.
+lexically scoped variables as well lazy evaluation. My primary motivation for
+doing this project is to explore the implementation details of these two
+language features. The interpreter is implemented as a REPL that allows
+declarations to be made at the top level.
 
 ## Syntax
-
-This EBNF should be changed to allow expressions like `\x y z. x y z`, where
-application is left associative and binds more tightly than abstraction. This
-expression should thus be equivalent to what is now `(\x y z. ((x y) z))`.
 
 ### EBNF
 
@@ -29,13 +22,13 @@ lambda = '\' | 'λ' ;
 char = ? [a-zA-Z] ? ;
 ```
 
-Additionally, the toplevel entries in the REPL have the syntax
+Additionally, the top level entries in the REPL have the syntax
 ```
 toplevel = var , '=' , expr
          | expr ;
 ```
 
-## Example
+## Example Session
 
 ```
 λ> id = (\x. x)
@@ -46,3 +39,17 @@ toplevel = var , '=' , expr
 λ> bot
 <loops forever>
 ```
+
+Note that declarations of the form `v = e` approximately translate into
+`((\v. <Rest of REPL session>) e)`. Here's an example
+```
+λ> id = (\x. x)
+λ> id = id
+λ> id
+```
+approximately translates to `((\id. ((\id. id) id)) (\x. x))`.
+
+## TODO
+
+- Add readline functionality.
+- Write better tests.
