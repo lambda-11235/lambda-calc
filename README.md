@@ -31,6 +31,11 @@ toplevel = var , '=' , expr
 ## Example Session
 
 ```
+> stack setup
+...
+> stack build
+...
+> stack exec typed-lambda-calc
 λ> id = (\x. x)
 λ> const = (\x y. x)
 λ> bot = ((\x. (x x)) (\x. (x x)))
@@ -51,5 +56,4 @@ approximately translates to `((\id. ((\id. id) id)) (\x. x))`.
 
 ## TODO
 
-- Add readline functionality.
 - Write better tests.

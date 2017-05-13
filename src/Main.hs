@@ -8,7 +8,7 @@ import Lexer
 import Parser
 
 import qualified Data.Map as M
-import System.IO
+import qualified System.Console.Readline as RL
 import Text.Parsec.Prim
 
 
@@ -17,23 +17,26 @@ main = repl M.empty
 
 repl :: Env -> IO ()
 
-repl env = do putStr "λ> "
-              hFlush stdout
-              str <- getLine
-              case runParser parser () "REPL" (scan str) of
-                Left err -> print err
-                Right (Bind name expr) ->
-                  case check expr env of
-                    Right () -> repl (M.insert name (Chunk env expr) env)
-                    Left (UninstatiatedVar var) -> 
-                      putStrLn ("Error: " ++ var ++ " not instantiated.")
-                Right (Expr expr) ->
-                  case eval expr env of
-                    Right f -> do putStr (prettyPrintClos f)
-                                  putStrLn (prettyPrintFunc f)
-                    Left (VarNotInScope var) ->
-                      putStrLn ("Error: " ++ var ++ " not in scope.")
-              repl env
+repl env =
+  do input <- RL.readline "λ> "
+     case input of
+       Nothing -> return ()
+       Just str ->
+         do RL.addHistory str
+            case runParser parser () "REPL" (scan str) of
+              Left err -> print err
+              Right (Bind name expr) ->
+                case check expr env of
+                  Right () -> repl (M.insert name (Chunk env expr) env)
+                  Left (UninstatiatedVar var) ->
+                    putStrLn ("Error: " ++ var ++ " not instantiated.")
+              Right (Expr expr) ->
+                case eval expr env of
+                  Right f -> do putStr (prettyPrintClos f)
+                                putStrLn (prettyPrintFunc f)
+                  Left (VarNotInScope var) ->
+                    putStrLn ("Error: " ++ var ++ " not in scope.")
+            repl env
 
 
 prettyPrintFunc :: Function -> String
