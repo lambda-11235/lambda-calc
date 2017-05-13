@@ -6,7 +6,7 @@ lexically scoped variables as well lazy evaluation.
 
 ## TODO
 
-- Fix EBNF grammer.
+- Fix EBNF grammar.
 - Add readline functionality.
 - Write better tests.
 
@@ -14,7 +14,7 @@ lexically scoped variables as well lazy evaluation.
 
 This EBNF should be changed to allow expressions like `\x y z. x y z`, where
 application is left associative and binds more tightly than abstraction. This
-expression should thus be equivilent to what is now `(\x y z. ((x y) z))`.
+expression should thus be equivalent to what is now `(\x y z. ((x y) z))`.
 
 ### EBNF
 
@@ -29,13 +29,20 @@ lambda = '\' | 'λ' ;
 char = ? [a-zA-Z] ? ;
 ```
 
+Additionally, the toplevel entries in the REPL have the syntax
+```
+toplevel = var , '=' , expr
+         | expr ;
+```
+
 ## Example
 
 ```
-λ> (\x. \y. x) (\x. x) ((\x. (x x)) (\x. (x x)))
-λx. x
-λ> (\x. \y. x)
-λx. λy. x
-λ> (\x. (x x)) (\x. (x x))
+λ> id = (\x. x)
+λ> const = (\x y. x)
+λ> bot = ((\x. (x x)) (\x. (x x)))
+λ> ((const id) bot)
+(λx. x)
+λ> bot
 <loops forever>
 ```

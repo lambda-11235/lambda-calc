@@ -33,8 +33,17 @@ pos :: (SourcePos -> LexOut -> [LexOut] -> SourcePos)
 pos oldPos (LexOut _ line col _) _ = newPos (sourceName oldPos) line col
 
 
-parser :: Parser AST
-parser = expr <* eof
+parser :: Parser TopLevel
+parser = toplevel <* eof
+
+
+-- TODO: Remove try.
+toplevel = try bind <|> (fmap Expr expr)
+
+bind = do name <- var
+          match LEqual
+          e <- expr
+          return (Bind name e)
 
 
 expr = parened <|> (fmap Var var)

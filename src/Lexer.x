@@ -11,10 +11,10 @@ tokens :-
   $white+                               ;
   "("                                   { \p s -> lexOut p LLParen }
   ")"                                   { \p s -> lexOut p LRParen }
-  -- FIXME: \x. x is not working
-  "\"                                  { \p s -> lexOut p LLambda }
+  "\"                                   { \p s -> lexOut p LLambda }
   "λ"                                   { \p s -> lexOut p LLambda }
   "."                                   { \p s -> lexOut p LDot }
+  "="                                   { \p s -> lexOut p LEqual }
   @character+                           { \p s -> lexOut p (LVar s) }
 
 {
@@ -22,6 +22,7 @@ data Token = LLParen
            | LRParen
            | LLambda
            | LDot
+           | LEqual
            | LVar String
            deriving (Eq, Show)
 
