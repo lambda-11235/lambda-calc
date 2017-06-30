@@ -1,36 +1,42 @@
 
-module Eval ( Error (..)
-            , eval
+module Eval ( eval
             ) where
 
 import AST
 
-import qualified Data.Map as M
+
+increaseDepth' :: Nat -> Expr -> Expr
+increaseDepth' depth (Var var idx) =
+  if idx < depth then Var var idx else Var var (idx + 1)
+increaseDepth' depth (Lambda var body) =
+  Lambda var (increaseDepth' (depth + 1) body)
+increaseDepth' depth (Apply x y) =
+  Apply (increaseDepth' depth x) (increaseDepth' depth y)
+
+increaseDepth :: Expr -> Expr
+increaseDepth = increaseDepth' 0
 
 
-data Error = VarNotInScope String deriving (Eq, Show)
+subst' :: Nat -> Expr -> Expr -> Expr
+subst' depth (Var var idx) x =
+  if idx < depth then Var var idx
+  else if idx == depth then x
+  else Var var (idx - 1)
+subst' depth (Lambda var body) x =
+  Lambda var (subst' (depth + 1) body (increaseDepth x))
+subst' depth (Apply y z) x = Apply (subst' depth y x) (subst' depth z x)
+
+subst :: Expr -> Expr -> Expr
+subst l x = subst' 0 l x
 
 
-{-
-   When evaluating a lambda expression we package the new function with the
-   current environment, thus creating a closure. When applying an expression we
-   must first evaluate it and then apply it to and unevaluated chunk containing
-   it argument. When looking up a variable we must evaluate the chunk that it is
-   bond to.
--}
-eval :: Expr -> Env -> Either Error Function
-eval (Lambda var body) env = Right (Function env var body)
-eval (Apply e1 e2) env = do f <- eval e1 env
-                            apply f (Chunk env e2)
-eval (Var var) env = case M.lookup var env of
-                       Just (Chunk env' expr) -> eval expr env'
-                       Nothing -> Left (VarNotInScope var)
-
-
-{-
-   Application basically consists of evaluating the body of a function with its
-   closure as the environment with the addition of the argument being bond to
-   its variable.
--}
-apply :: Function -> Chunk -> Either Error Function
-apply (Function closure var body) chunk = eval body (M.insert var chunk closure)
+-- | Evaluates an expression to normal form or through a certain number of
+-- applications.
+eval :: Nat -> Expr -> Expr
+eval _ v@(Var _ _) = v
+eval n (Lambda var body) = Lambda var (eval n body)
+eval n ap@(Apply x y) =
+  if n <= 0 then ap else
+    case eval n x of
+      Lambda _ body -> eval (n - 1) (subst body (eval n y))
+      expr -> Apply expr (eval n y)

@@ -2,7 +2,6 @@
 module Main where
 
 import AST
-import Check
 import Eval
 import Lexer
 import Parser
@@ -12,12 +11,16 @@ import qualified System.Console.Readline as RL
 import Text.Parsec.Prim
 
 
+-- | The maximum number of function applications allowed.
+maxApps :: Nat
+maxApps = 1000
+
+
 main :: IO ()
 main = repl M.empty
 
-repl :: Env -> IO ()
-
-repl env =
+repl :: Bindings -> IO ()
+repl binds =
   do input <- RL.readline "λ> "
      case input of
        Nothing -> return ()
@@ -25,32 +28,24 @@ repl env =
          do RL.addHistory str
             case runParser parser () "REPL" (scan str) of
               Left err -> print err
+
               Right (Bind name expr) ->
-                case check expr env of
-                  Right () -> repl (M.insert name (Chunk env expr) env)
-                  Left (UninstatiatedVar var) ->
+                case instantiateVars expr binds of
+                  Left var ->
                     putStrLn ("Error: " ++ var ++ " not instantiated.")
+
+                  Right expr -> repl (M.insert name expr binds)
+
               Right (Expr expr) ->
-                case eval expr env of
-                  Right f -> do putStr (prettyPrintClos f)
-                                putStrLn (prettyPrintFunc f)
-                  Left (VarNotInScope var) ->
-                    putStrLn ("Error: " ++ var ++ " not in scope.")
-            repl env
+                case instantiateVars expr binds of
+                  Left var ->
+                    putStrLn ("Error: " ++ var ++ " not instantiated.")
 
+                  Right expr' -> do let expr'' = eval maxApps expr'
+                                    putStrLn (prettyPrintExpr expr'')
+            repl binds
 
-prettyPrintFunc :: Function -> String
-prettyPrintFunc (Function _ var body) = prettyPrintExpr (Lambda var body)
-
-prettyPrintClos :: Function -> String
-prettyPrintClos (Function env _ _) = if M.null env
-                                       then ""
-                                       else "Closure Vars: " ++ ppClos (M.keys env) ++ "\n"
-  where
-    ppClos [] = ""
-    ppClos [var] = var
-    ppClos (var:vars) = var ++ " " ++ ppClos vars
 
 prettyPrintExpr (Lambda var body) = "(λ" ++ var ++ ". " ++ prettyPrintExpr body ++ ")"
 prettyPrintExpr (Apply e1 e2) = "(" ++ prettyPrintExpr e1 ++ " " ++ prettyPrintExpr e2 ++ ")"
-prettyPrintExpr (Var var) = var
+prettyPrintExpr (Var var idx) = var ++ "[" ++ show idx ++ "]"

@@ -16,7 +16,7 @@ cabal-version:       >=1.10
 executable lambda-calc
   hs-source-dirs:      src
   main-is:             Main.hs
-  other-modules:       AST, Eval, Lexer, Parser, Check
+  other-modules:       AST, Eval, Lexer, Parser
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base, parsec, containers, array, readline
   build-tools:         alex

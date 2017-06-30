@@ -46,7 +46,7 @@ bind = do name <- var
           return (Bind name e)
 
 
-expr = parened <|> (fmap Var var)
+expr = parened <|> (fmap (\s -> Var s 0) var)
 
 -- NOTE: This is necessary to avoid backtracking.
 parened = do match LLParen

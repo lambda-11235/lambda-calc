@@ -1,11 +1,9 @@
 
 # Lambda Calculus
 
-A simple implementation of the untyped lambda calculus. This implementation uses
-lexically scoped variables as well lazy evaluation. My primary motivation for
-doing this project is to explore the implementation details of these two
-language features. The interpreter is implemented as a REPL that allows
-declarations to be made at the top level.
+A simple implementation of the untyped lambda calculus. It is implemented as an
+interpreter. The interpreter evaluates expressions to either normal form, or
+through a certain number of function applications, whichever is shorter.
 
 ## Syntax
 
@@ -40,9 +38,20 @@ toplevel = var , '=' , expr
 λ> const = (\x y. x)
 λ> bot = ((\x. (x x)) (\x. (x x)))
 λ> ((const id) bot)
-(λx. x)
+(λx. x[0])
 λ> bot
-<loops forever>
+((λx. (x[0] x[0])) (λx. (x[0] x[0])))
+```
+
+One should note that `bot` should never return if we fully evaluated the term.
+This demonstrates that the interpreter will give up evaluation after a certain
+number of function applications. The bracketed numbers (ie. the 0 in `x[0]`)
+represent the de Bruijn indices of the variables, and are used to disambiguate
+potentially ambiguous variable names caused by lambda capture. The canonical
+example being
+```
+λ> (\x. ((\f x. (f x)) x))
+(λx. (λx. (x[1] x[0])))
 ```
 
 Note that declarations of the form `v = e` approximately translate into
