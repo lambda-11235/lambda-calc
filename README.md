@@ -11,7 +11,7 @@ through a certain number of function applications, whichever is shorter.
 
 ```
 expr = '(' , lambda , var , { var } , '.' , expr , ')'
-     | '(' , expr , expr ')'
+     | '(' , expr , expr , { expr } , ')'
      | var ;
 
 var = char , { char } ;
@@ -37,7 +37,7 @@ toplevel = var , '=' , expr
 λ> id = (\x. x)
 λ> const = (\x y. x)
 λ> bot = ((\x. (x x)) (\x. (x x)))
-λ> ((const id) bot)
+λ> (const id bot)
 (λx. x[0])
 λ> bot
 ((λx. (x[0] x[0])) (λx. (x[0] x[0])))

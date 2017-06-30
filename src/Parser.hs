@@ -62,7 +62,7 @@ lambda = do match LLambda
     lambda' [] body = body
     lambda' (var:vars) body = Lambda var (lambda' vars body)
 
-apply = do e1 <- expr
-           e2 <- expr
+apply = do e <- expr
+           es <- many1 expr
            match LRParen
-           return (Apply e1 e2)
+           return (foldl Apply e es)
