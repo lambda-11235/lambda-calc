@@ -8,7 +8,7 @@ import Parser
 
 import Control.Exception
 import Data.Foldable (foldlM, foldrM)
-import Data.List (findIndex)
+import Data.List (findIndex, intersperse)
 import qualified Data.Map as M
 import qualified System.Console.Readline as RL
 import System.Environment (getArgs)
@@ -77,7 +77,7 @@ ppExpr = ppExpr' False []
 ppExpr' expParen vars (Lambda var body) =
   maybeParen expParen ("λ" ++ var ++ ". " ++ ppExpr' False (var:vars) body)
 ppExpr' expParen vars (Apply e1 e2) =
-  maybeParen expParen (ppExpr' True vars e1 ++ " " ++ ppExpr' True vars e2)
+  maybeParen expParen (ppApply vars [e2] e1)
 ppExpr' _ vars (Var var idx) =
   let debruijn = var ++ "[" ++ show idx ++ "]" in
     case findIndex (== var) vars of
@@ -89,3 +89,8 @@ ppExpr' _ vars (Var var idx) =
 
 maybeParen False s = s
 maybeParen True s = "(" ++ s ++ ")"
+
+ppApply vars es (Apply e1 e2) = ppApply vars (e2:es) e1
+ppApply vars es e = ppApply' (e:es)
+  where
+    ppApply' es = intersperse " " (map (ppExpr' True vars) es) >>= id

@@ -30,6 +30,11 @@ toplevel = "let" , var , '=' , expr
          | expr ;
 ```
 
+## Semantics
+
+The semantics are the same as for normal lambda calculus. This implementation
+in particular uses lazy function application.
+
 ## Example Session
 
 ```
@@ -48,8 +53,8 @@ toplevel = "let" , var , '=' , expr
 ```
 
 One should note that `bot` should never return if we fully evaluated the term.
-This demonstrates that the interpreter will give up evaluation after a certain
-number of function applications.
+This demonstrates that the interpreter will give up evaluation after a finite,
+but not necessarily constant, number of function applications.
 
 The interpreter uses de Buijn indexes during evaluation. Thus, when lambda
 capture occurs variable names aren't rewritten. To avoid confusen, when a

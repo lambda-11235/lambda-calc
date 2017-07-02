@@ -31,7 +31,10 @@ subst l x = subst' 0 l x
 
 
 -- | Evaluates an expression to normal form or through a certain number of
--- applications.
+-- applications. Non-strictness comes from Haskell's own laziness. To see this
+-- execute `const id fact` and then `fact`. If we were using strict evaluation
+-- (as it appears we are below) the first would take just as long as the second
+-- to execute, but it doesn't.
 eval :: Nat -> Expr -> Expr
 eval _ v@(Var _ _) = v
 eval n (Lambda var body) = Lambda var (eval n body)

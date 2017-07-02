@@ -1,7 +1,9 @@
 
 let id = \x. x
 let const = \x y. x
+let flip = \f x y. f y x
 let Y = \f. (\x. x x) (\x. f (x x))
+let bot = Y id
 
 let true = \x y. x
 let false = \x y. y
