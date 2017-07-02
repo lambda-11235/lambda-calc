@@ -13,6 +13,7 @@ tokens :-
   ")"                                   { \p s -> lexOut p LRParen }
   "\"                                   { \p s -> lexOut p LLambda }
   "λ"                                   { \p s -> lexOut p LLambda }
+  "let"                                 { \p s -> lexOut p LLet }
   "."                                   { \p s -> lexOut p LDot }
   "="                                   { \p s -> lexOut p LEqual }
   @character+                           { \p s -> lexOut p (LVar s) }
@@ -21,6 +22,7 @@ tokens :-
 data Token = LLParen
            | LRParen
            | LLambda
+           | LLet
            | LDot
            | LEqual
            | LVar String

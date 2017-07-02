@@ -6,6 +6,7 @@ import Eval
 import Lexer
 import Parser
 
+import Data.List (findIndex)
 import qualified Data.Map as M
 import qualified System.Console.Readline as RL
 import Text.Parsec.Prim
@@ -42,10 +43,21 @@ repl binds =
                     putStrLn ("Error: " ++ var ++ " not instantiated.")
 
                   Right expr' -> do let expr'' = eval maxApps expr'
-                                    putStrLn (prettyPrintExpr expr'')
+                                    putStrLn (ppExpr expr'')
             repl binds
 
 
-prettyPrintExpr (Lambda var body) = "(λ" ++ var ++ ". " ++ prettyPrintExpr body ++ ")"
-prettyPrintExpr (Apply e1 e2) = "(" ++ prettyPrintExpr e1 ++ " " ++ prettyPrintExpr e2 ++ ")"
-prettyPrintExpr (Var var idx) = var ++ "[" ++ show idx ++ "]"
+ppExpr :: Expr -> String
+ppExpr = ppExpr' False []
+
+ppExpr' expParen vars (Lambda var body) =
+  maybeParen expParen ("λ" ++ var ++ ". " ++ ppExpr' False (var:vars) body)
+ppExpr' expParen vars (Apply e1 e2) =
+  maybeParen expParen (ppExpr' True vars e1 ++ " " ++ ppExpr' True vars e2)
+ppExpr' _ vars (Var var idx) =
+  if maybe 0 fromIntegral (findIndex (== var) vars) == idx
+  then var
+  else var ++ "[" ++ show idx ++ "]"
+
+maybeParen False s = s
+maybeParen True s = "(" ++ s ++ ")"
