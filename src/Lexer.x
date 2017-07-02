@@ -9,6 +9,7 @@ module Lexer (Token (..), LexOut (..), scan) where
 tokens :-
 
   $white+                               ;
+  "#".*                                 ;
   "("                                   { \p s -> lexOut p LLParen }
   ")"                                   { \p s -> lexOut p LRParen }
   "\"                                   { \p s -> lexOut p LLambda }

@@ -7,6 +7,8 @@ through a certain number of function applications, whichever is shorter.
 
 ## Syntax
 
+Comments begin with a `#` and extend to the end of the line.
+
 ### EBNF
 
 ```

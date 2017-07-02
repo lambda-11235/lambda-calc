@@ -36,15 +36,17 @@ pos oldPos (LexOut _ line col _) _ = newPos (sourceName oldPos) line col
 parser :: Parser TopLevel
 parser = toplevel <* eof
 
+bindings :: Parser [(String, Expr)]
+bindings = many bind
 
--- TODO: Remove try.
-toplevel = try bind <|> (fmap Expr expr)
+
+toplevel = (fmap (uncurry Bind)) bind <|> (fmap Expr expr)
 
 bind = do match LLet
           name <- var
           match LEqual
           e <- expr
-          return (Bind name e)
+          return (name, e)
 
 
 expr :: Parser Expr
