@@ -35,7 +35,7 @@ let equal = \n. \m. not (or (greaterThan n m) (lessThan n m))
 
 
 # Returns a pair of the quotient and remainder, respectively, of the division of
-# n by m. Produce incorrect result when m = 0.
+# n by m. Produces incorrect result when m = 0.
 let divRem = \n. \m.
   n (\p. p (\q. \r.
       (lessThan (succ r) m) (pair q (succ r)) (pair (succ q) zero)))
