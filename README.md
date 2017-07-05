@@ -2,8 +2,7 @@
 # Lambda Calculus
 
 A simple implementation of the untyped lambda calculus. It is implemented as an
-interpreter. The interpreter evaluates expressions to either normal form, or
-through a certain number of function applications, whichever is shorter.
+interpreter. The interpreter evaluates expressions to normal form, if possible.
 
 ## Syntax
 
@@ -33,7 +32,7 @@ toplevel = "let" , var , '=' , expr
 ## Semantics
 
 The semantics are the same as for normal lambda calculus. This implementation
-in particular uses lazy function application.
+in particular uses lazy evaluation.
 
 ## Example Session
 
@@ -49,12 +48,8 @@ in particular uses lazy function application.
 λ> const id bot
 λx. x
 λ> bot
-(λx. x x) (λx. x x)
+<loops forever>
 ```
-
-One should note that `bot` should never return if we fully evaluated the term.
-This demonstrates that the interpreter will give up evaluation after a finite,
-but not necessarily constant, number of function applications.
 
 The interpreter uses de Buijn indexes during evaluation. Thus, when lambda
 capture occurs variable names aren't rewritten. To avoid confusen, when a

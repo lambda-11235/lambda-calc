@@ -16,11 +16,6 @@ import System.Exit
 import Text.Parsec.Prim
 
 
--- | The maximum number of function applications allowed.
-maxApps :: Nat
-maxApps = 1000
-
-
 main :: IO ()
 main = do files <- getArgs
           binds <- loadFiles files
@@ -50,7 +45,7 @@ repl binds =
                     Left var ->
                       putStrLn ("Error: " ++ var ++ " not instantiated.")
 
-                    Right expr' -> do let expr'' = eval maxApps expr'
+                    Right expr' -> do let expr'' = eval expr'
                                       putStrLn (ppExpr expr'')
             repl binds
 
