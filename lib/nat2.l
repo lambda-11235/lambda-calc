@@ -28,6 +28,7 @@ let seven = succ six
 let eight = succ seven
 let nine  = succ eight
 let ten   = succ nine
+let inf   = Y (\rec. succ rec)
 
 let add = Y (\rec n m. n (\x. succ (rec x m)) m)
 let mult = Y (\rec n m. n (\x. add m (rec x m)) zero)

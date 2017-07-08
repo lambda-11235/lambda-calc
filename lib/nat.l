@@ -12,6 +12,7 @@ let seven = succ six
 let eight = succ seven
 let nine  = succ eight
 let ten   = succ nine
+let inf   = Y (\rec. succ rec)
 
 let add = \n m. n succ m
 let mult = \n m. n (add m) zero
